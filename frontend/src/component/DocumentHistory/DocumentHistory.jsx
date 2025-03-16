@@ -1,8 +1,8 @@
 // DocumentHistory.jsx
 import React, { useEffect, useState } from 'react';
-import { History } from 'lucide-react';
+import { History, Rss } from 'lucide-react';
 import './DocumentHistory.css';
-import axios, { toFormData } from 'axios';
+import axios from 'axios';
 
 const DocumentHistory = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -12,23 +12,32 @@ const DocumentHistory = () => {
   //   { id: 3, filename: "NGO_Guidelines.pdf", date: "2023-03-15", status: "Completed" },
   // ];
   const [fileHistory,setFileHistory] = useState([])
+  const fetchUserDocs = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const authToken = localStorage.getItem("authToken");
 
-  const fetchUserDocs = async() =>{
-    const user = JSON.parse(localStorage.getItem("user"))
-    const authToken = localStorage.getItem("authToken");
-    const formData = new FormData();
-    formData.append('id',user.id)
-    const response = await axios.post(apiUrl+"users/history/",formData,{
-      headers:{
-        Authorization:`Token ${authToken}`
+      if (!user || !authToken) {
+        console.error("User or authToken is missing");
+        return;
       }
-    })
-    setFileHistory(response.data)
 
-  }
-  useEffect(()=>{
+      const response = await axios.get(`${apiUrl}users/history/`, {
+        headers: {
+          Authorization: `Token ${authToken}`,
+        },
+      });
+
+      setFileHistory(response.data.file_history); // Ensure the correct response structure
+      console.log("Fetched File History:", response.data.file_history);
+    } catch (error) {
+      console.error("Error fetching file history:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchUserDocs();
-  },[])
+  }, []);
 
   return (
     <div className="history-card">
@@ -45,6 +54,7 @@ const DocumentHistory = () => {
         <table className="history-table">
           <thead>
             <tr>
+              <th>Sr no.</th>
               <th>Document Name</th>
               <th>Date Processed</th>
               <th>Status</th>
@@ -52,15 +62,16 @@ const DocumentHistory = () => {
             </tr>
           </thead>
           <tbody>
-            {fileHistory.map((file) => (
+            {fileHistory.map((file,index) => (
               <tr key={file.id}>
-                <td>{file.filename}</td>
-                <td>{file.date}</td>
+                <td>{index+1}</td>
+                <td>{file.file_name.substring(18)}</td>
+                <td>{file.uploaded_at}</td>
                 <td>
                   <span className="status">{file.status}</span>
                 </td>
                 <td>
-                  <button className="view-btn">View</button>
+                  <a href={`http://localhost:8000${file.file_url}`} target='_blank' className="view-btn">View</a>
                 </td>
               </tr>
             ))}

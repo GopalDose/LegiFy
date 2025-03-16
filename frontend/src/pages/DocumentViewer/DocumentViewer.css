@@ -122,3 +122,12 @@
 iframe{
   height: 65vh;
 }
+
+.document-preview img{
+  width: 100%;
+  height: max-content;
+  
+}
+.document-preview img::-webkit-scrollbar{
+  display: none;
+}

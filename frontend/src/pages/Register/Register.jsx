@@ -124,7 +124,7 @@ const Register = () => {
                   <div className="card-content">
                     <form onSubmit={handleSubmit} className="form">
                       <div className="form-group">
-                        <label htmlFor="name">Full Name</label>
+                        <label htmlFor="name">Username</label>
                         <input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required />
                       </div>
                       <div className="form-group">
