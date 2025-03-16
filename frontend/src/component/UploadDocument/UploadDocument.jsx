@@ -21,7 +21,7 @@ const UploadDocument = () => {
       setFile(e.target.files[0]);
     }
   };
-
+// handle file upload
   const handleSubmit = async(e) => {
     e.preventDefault();
     if (!file) {
@@ -41,6 +41,7 @@ const UploadDocument = () => {
     setProgress(0);
     const authToken = localStorage.getItem("authToken");
 
+// check for auth token
       if (!authToken) {
         toast.error("Authentication token not found. Please log in.", {
           position: "top-right",
@@ -62,8 +63,6 @@ const UploadDocument = () => {
           "Content-Type" : "multipart/form-data"
         }
       });
-
-      
 
     const interval = setInterval(() => {
       setProgress((prev) => {
