@@ -1,11 +1,13 @@
 // Login.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, ArrowLeft, Loader2 } from 'lucide-react';
 import './Login.css';
+import axios from 'axios';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +26,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!username || !password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -34,7 +36,13 @@ const Login = () => {
     }
     
     setIsLoading(true);
-    
+    const formData = new FormData();
+    formData.append('username',username);
+    formData.append('password',password);
+    const response = await axios.post(apiUrl+"users/login/",formData);
+    console.log(response)
+    localStorage.setItem('authToken',response.data.token);
+
     setTimeout(() => {
       setIsLoading(false);
       toast({
@@ -68,21 +76,21 @@ const Login = () => {
               <div className="card-header">
                 <h2 className="card-title">Sign in</h2>
                 <p className="card-description">
-                  Enter your email and password to access your account
+                  Enter your username and password to access your account
                 </p>
               </div>
               
               <div className="card-content">
                 <form onSubmit={handleSubmit} className="form">
                   <div className="form-group">
-                    <label htmlFor="email">Email</label>
+                    <label htmlFor="username">Username</label>
                     <input 
                       id="email" 
-                      type="email" 
+                      type="text" 
                       placeholder="name@example.com" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      autoComplete="name"
                       required
                     />
                   </div>

@@ -3,8 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import './Register.css';
+import axios from 'axios';
+import { toast } from 'react-toastify' ;
+
+
 
 const Register = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,8 +19,8 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   
-  // Simulate toast functionality
-  const toast = ({ title, description, variant }) => {
+  // Simulate toastModel functionality
+  const toastModel = ({ title, description, variant }) => {
     console.log(`${title}: ${description} ${variant ? `(${variant})` : ''}`);
   };
 
@@ -27,47 +32,58 @@ const Register = () => {
     e.preventDefault();
     
     if (!name || !email || !password || !confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive"
+
+      toast.error("Please fill in all fields", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return;
     }
-    
     if (password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive"
+      toast.error("Passwords do not match", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return;
     }
-    
+  
     if (!agreeTerms) {
-      toast({
-        title: "Error",
-        description: "You must agree to the terms and conditions",
-        variant: "destructive"
+      toast.warning("You must agree to the terms and conditions", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return;
     }
-    
+    const formData = new FormData();
+    formData.append('username',name);
+    formData.append('email',email)
+    formData.append('password',password)
     setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
-      setSuccess(true);
-      
-      toast({
-        title: "Account created",
-        description: "Your account has been successfully created.",
-      });
+    const response = await axios.post(apiUrl+"users/create/",formData);
+    setIsLoading(true);
+
+    try {
+      await axios.post(apiUrl + "users/create/", formData);
       
       setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
-    }, 1500);
+        setIsLoading(false);
+        setSuccess(true);
+        toast.success("Your account has been successfully created!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+  
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000);
+      }, 1500);
+    } catch (error) {
+      setIsLoading(false);
+      toast.error("Registration failed. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
   };
 
   const getPasswordStrength = () => {
