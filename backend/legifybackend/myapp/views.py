@@ -184,16 +184,28 @@ def file_history(request):
     ]
     
     return JsonResponse({"file_history": file_history}, status=200)
-@csrf_exempt
-@permission_classes([IsAuthenticated])  # Ensure user is authenticated
 
+
+@csrf_exempt
+@api_view(['DELETE'])  
+@permission_classes([IsAuthenticated])  
 def cleanup_files(request):
     """Delete all files and database entries for the logged-in user."""
+    
+    # Debug: Check user authentication
+    print(f"Request User: {request.user}")  
+    print(f"Is Authenticated: {request.user.is_authenticated}")  
+
+    if not request.user or request.user.is_anonymous:
+        return JsonResponse({"error": "Authentication required!"}, status=401)
+
     user_files = UserFile.objects.filter(user=request.user)
+    
     for user_file in user_files:
-        if os.path.exists(user_file.file_path):
-            os.remove(user_file.file_path)  # Delete the file
-        user_file.delete()  # Delete the database entry
+        file_path = user_file.file_path  
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)  
+        user_file.delete()  
 
     return JsonResponse({"message": "Files cleaned up successfully!"}, status=200)
 
