@@ -4,9 +4,11 @@ import { Upload } from "lucide-react";
 import "./UploadDocument.css";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const UploadDocument = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
 
   const [file, setFile] = useState(null);
   const [processing, setProcessing] = useState(false);
@@ -21,8 +23,8 @@ const UploadDocument = () => {
       setFile(e.target.files[0]);
     }
   };
-// handle file upload
-  const handleSubmit = async(e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
       toastModel({
@@ -41,45 +43,56 @@ const UploadDocument = () => {
     setProgress(0);
     const authToken = localStorage.getItem("authToken");
 
-// check for auth token
-      if (!authToken) {
-        toast.error("Authentication token not found. Please log in.", {
-          position: "top-right",
-          autoClose: 3000,
+    if (!authToken) {
+      toast.error("Authentication token not found. Please log in.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      setProcessing(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await axios.post(apiUrl + "users/upload/", formData, {
+        headers: {
+          "Authorization": `Token ${authToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log(response.data);
+
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setProcessing(false);
+            toast.success("Your document has been analyzed successfully", {
+              position: "top-right",
+              autoClose: 3000,
+            });
+            navigate("/viewer", {
+              state: {
+                uploadedFile: file,
+                ocrResult: response.data.extracted_text || "OCR text not available",
+              },
+            });
+            return 100;
+          }
+          return prev + 10;
         });
-        return;
-      }
-      
-      const formData = new FormData();
-      const user = localStorage.getItem("user")
-      
-      const userid = JSON.parse(localStorage.getItem("user"))
-      formData.append("file", file);
-      
-      // formData.append("id",userid)
-      const response = await axios.post(apiUrl + "users/upload/",formData,{
-        headers:{
-          "Authorization":`Token ${authToken}`,
-          "Content-Type" : "multipart/form-data"
-        }
+      }, 500);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Error processing document: " + error.message, {
+        position: "top-right",
+        autoClose: 3000,
       });
-
-      console.log(response.data)
-
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setProcessing(false);
-          toast.success("Your document has been analyzed successfully",{
-            position:'top-right',
-            autoClose:3000
-          });
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+      setProcessing(false);
+    }
   };
 
   return (
@@ -133,8 +146,6 @@ const UploadDocument = () => {
             type="submit"
             className="submit-btn"
             disabled={!file || processing}
-            onChange={(e) => handleFileChange(e)}
-            onClick={(e) => handleSubmit(e)}
           >
             {processing ? "Processing..." : "Analyze Document"}
           </button>

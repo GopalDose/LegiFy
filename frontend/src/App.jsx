@@ -8,6 +8,7 @@ import Register from "./pages/Register/Register";
 import NotFound from "./pages/NotFound/NotFound";
 import Dashboard from './pages/Dashboard/Dashboard';
 import { ToastContainer } from "react-toastify";
+import DocumentViewer from './pages/DocumentViewer/DocumentViewer';
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/viewer" element={<DocumentViewer />} />
       </Routes>
     </BrowserRouter>
   </QueryClientProvider>
