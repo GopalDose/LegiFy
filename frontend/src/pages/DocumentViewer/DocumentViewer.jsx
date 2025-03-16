@@ -197,7 +197,7 @@ const DocumentViewer = () => {
           <div className="pane-content">
             {ocrResult ? (
               <div className="ocr-result">
-                <pre className="ocr-text">{ocrResult}</pre>
+                <pre className="ocr-text">{sometext}</pre>
               </div>
             ) : (
               <p className="no-content">No OCR results available</p>

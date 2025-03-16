@@ -150,12 +150,12 @@ def file_upload(request):
 
     try:
         extracted_text = extract_text(file_path)
-        # legal_res = summarize_text(extract_text,2)
+        legal_res = summarize_text(extracted_text,2)
 
         response_data = {
             "message": "File uploaded and text extracted successfully!",
             "file_url": f"{settings.MEDIA_URL}uploads/{unique_file_name}",
-            # "summarized_text": legal_res,
+            "summarized_text": legal_res,
             "extracted_text": extracted_text,
             "file_id": user_file.id  # Return the file ID for future reference
         }
