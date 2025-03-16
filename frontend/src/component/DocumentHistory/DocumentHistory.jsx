@@ -6,11 +6,7 @@ import axios from 'axios';
 
 const DocumentHistory = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  // const fileHistory = [
-  //   { id: 1, filename: "Environmental_Policy_2023.pdf", date: "2023-05-12", status: "Completed" },
-  //   { id: 2, filename: "Human_Rights_Act.docx", date: "2023-04-28", status: "Completed" },
-  //   { id: 3, filename: "NGO_Guidelines.pdf", date: "2023-03-15", status: "Completed" },
-  // ];
+  
   const [fileHistory,setFileHistory] = useState([])
   const fetchUserDocs = async () => {
     try {
