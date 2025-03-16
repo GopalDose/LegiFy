@@ -7,11 +7,14 @@ import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import NotFound from "./pages/NotFound/NotFound";
 import Dashboard from './pages/Dashboard/Dashboard';
+import { ToastContainer } from "react-toastify";
 
 const queryClient = new QueryClient();
 
 const App = () => (
+
   <QueryClientProvider client={queryClient}>
+    <ToastContainer/>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Index />} />
