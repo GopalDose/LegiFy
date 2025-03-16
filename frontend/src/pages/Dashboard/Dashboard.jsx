@@ -11,7 +11,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <Sidebar />
-      <div className="main-content">
+      <div className="main-content-dash">
         <div className="container">
           <h1 className="dashboard-title">Document Dashboard</h1>
           <Stats />
