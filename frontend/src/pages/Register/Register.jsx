@@ -14,7 +14,6 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   
-  // Simulate toast functionality
   const toast = ({ title, description, variant }) => {
     console.log(`${title}: ${description} ${variant ? `(${variant})` : ''}`);
   };
