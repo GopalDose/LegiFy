@@ -40,8 +40,8 @@ const Login = () => {
     formData.append('username',username);
     formData.append('password',password);
     const response = await axios.post(apiUrl+"users/login/",formData);
-    console.log(response)
     localStorage.setItem('authToken',response.data.token);
+    localStorage.setItem('user',JSON.stringify(response.data.user))
 
     setTimeout(() => {
       setIsLoading(false);
