@@ -165,24 +165,25 @@ def file_upload(request):
         return JsonResponse(response_data, status=201)
     except Exception as e:
         return JsonResponse({"error": f"Error extracting text: {str(e)}"}, status=500)
-
-@csrf_exempt
+    
+@api_view(['GET'])  # Use Django REST Framework
 @permission_classes([IsAuthenticated])  # Ensure user is authenticated
 def file_history(request):
     """Fetch the file history for the logged-in user."""
-    print(request)
+    
     user_files = UserFile.objects.filter(user=request.user).order_by('-uploaded_at')
+
     file_history = [
         {
             "id": file.id,
             "file_name": file.file_name,
-            "file_url": f"{settings.MEDIA_URL}uploads/{file.file_name}",
+            "file_url": f"{settings.MEDIA_URL}{file.file_path}",
             "uploaded_at": file.uploaded_at.strftime("%Y-%m-%d %H:%M:%S")
         }
         for file in user_files
     ]
+    
     return JsonResponse({"file_history": file_history}, status=200)
-
 @csrf_exempt
 @permission_classes([IsAuthenticated])  # Ensure user is authenticated
 
