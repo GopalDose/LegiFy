@@ -9,13 +9,19 @@ import NotFound from "./pages/NotFound/NotFound";
 import Dashboard from './pages/Dashboard/Dashboard';
 import { ToastContainer } from "react-toastify";
 import DocumentViewer from './pages/DocumentViewer/DocumentViewer';
+import { useTranslation } from "react-i18next";
+import "./i18n"; // Import i18n config
+
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  // const { t, i18n } = useTranslation();
+
 
   <QueryClientProvider client={queryClient}>
     <ToastContainer/>
+
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Index />} />

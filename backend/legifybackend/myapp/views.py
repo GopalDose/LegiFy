@@ -26,8 +26,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from dotenv import load_dotenv
-
-
+from .utilities.ncr import extract_legal_entities
+from .utilities.text_summarizer import summarize_text
 load_dotenv()
 
 # Create your views here.
@@ -123,7 +123,6 @@ def user_logout(request):
 
 
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Ensure user is authenticated
 @parser_classes([MultiPartParser])  # Allow file uploads
@@ -133,9 +132,7 @@ def file_upload(request):
         return JsonResponse({"error": "No file uploaded"}, status=400)
 
     uploaded_file = request.FILES['file']
- 
-
-
+    
     # Generate a unique file name: userid_timestamp_filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     unique_file_name = f"{request.user.id}_{timestamp}_{uploaded_file.name}"
@@ -153,13 +150,13 @@ def file_upload(request):
 
     try:
         extracted_text = extract_text(file_path)
-        # legal_res = summarize_text(extracted_text,simpificationLevel)
+        # legal_res = summarize_text(extract_text,2)
 
         response_data = {
             "message": "File uploaded and text extracted successfully!",
             "file_url": f"{settings.MEDIA_URL}uploads/{unique_file_name}",
-            # "legal_res": legal_res,
-            "extracted_text":extracted_text,
+            # "summarized_text": legal_res,
+            "extracted_text": extracted_text,
             "file_id": user_file.id  # Return the file ID for future reference
         }
         return JsonResponse(response_data, status=201)
@@ -209,8 +206,8 @@ def cleanup_files(request):
 
     return JsonResponse({"message": "Files cleaned up successfully!"}, status=200)
 
-# API_KEY = os.getenv("API_KEY")
-# GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+API_KEY = os.getenv("API_KEY")
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
 
 @api_view(["POST"])
 def chat(request):
@@ -244,3 +241,66 @@ def chat(request):
         print("Exception:", str(e))  # ✅ Print error message
         print(traceback.format_exc())  # ✅ Print full error traceback
         return Response({"error": str(e)}, status=500)
+    
+
+
+@csrf_exempt
+@api_view(['POST'])  
+@permission_classes([IsAuthenticated])  
+def getners(request):
+    # Extract NERs from the input text
+    ners = extract_legal_entities(request.data.get('text'))
+    
+    try:
+        # Check if ners is valid
+        if not ners:
+            return Response({"error": "No entities extracted from text"}, status=400)
+
+        # Convert the ners dict to a JSON string for the prompt
+        prompt = json.dumps(ners)
+        if not prompt:
+            return Response({"error": "Prompt is required"}, status=400)
+
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": prompt + " filter this json out as per the name entity recognition standards like dont keep unnecessary or non-matching entities for the keys and return it in same format"
+                        }
+                    ]
+                }
+            ]
+        }
+
+        # Make the API request to Gemini
+        response = requests.post(GEMINI_URL, headers=headers, json=data)
+
+        # Check if the request was successful
+        response.raise_for_status()  # Raises an HTTPError for bad responses
+
+        print(response)
+        response_data = response.json()
+        
+        print("Gemini API Response:", response_data)  # Debugging
+
+        # Validate and extract the response
+        if "candidates" in response_data and len(response_data["candidates"]) > 0:
+            candidate = response_data["candidates"][0]
+            if "content" in candidate and "parts" in candidate["content"] and len(candidate["content"]["parts"]) > 0:
+                response_text = candidate["content"]["parts"][0]["text"]
+                return Response({"response": response_text}, status=200)
+
+        return Response({"error": "Invalid API response structure"}, status=500)
+
+    except requests.exceptions.RequestException as e:
+        print("Request Exception:", str(e))
+        print(traceback.format_exc())
+        return Response({"error": f"API request failed: {str(e)}"}, status=500)
+    except Exception as e:
+        print("Exception:", str(e))
+        print(traceback.format_exc())
+        return Response({"error": str(e)}, status=500)
+    
+

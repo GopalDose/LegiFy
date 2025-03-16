@@ -78,6 +78,7 @@ const UploadDocument = () => {
               state: {
                 uploadedFile: file,
                 ocrResult: response.data.extracted_text || "OCR text not available",
+                sometext:response.data.summarized_text || "Summarized text"
               },
             });
             return 100;

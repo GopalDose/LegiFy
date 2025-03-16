@@ -286,5 +286,5 @@ def summarize_text(text,level):
         'original_text' : text,
         'simplified_text' : simplified_corpus.replace("**","")
     }
-    return result
+    return result['simplified_text']
 
