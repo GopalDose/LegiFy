@@ -1,14 +1,34 @@
 // DocumentHistory.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { History } from 'lucide-react';
 import './DocumentHistory.css';
+import axios, { toFormData } from 'axios';
 
 const DocumentHistory = () => {
-  const fileHistory = [
-    { id: 1, filename: "Environmental_Policy_2023.pdf", date: "2023-05-12", status: "Completed" },
-    { id: 2, filename: "Human_Rights_Act.docx", date: "2023-04-28", status: "Completed" },
-    { id: 3, filename: "NGO_Guidelines.pdf", date: "2023-03-15", status: "Completed" },
-  ];
+  const apiUrl = import.meta.env.VITE_API_URL;
+  // const fileHistory = [
+  //   { id: 1, filename: "Environmental_Policy_2023.pdf", date: "2023-05-12", status: "Completed" },
+  //   { id: 2, filename: "Human_Rights_Act.docx", date: "2023-04-28", status: "Completed" },
+  //   { id: 3, filename: "NGO_Guidelines.pdf", date: "2023-03-15", status: "Completed" },
+  // ];
+  const [fileHistory,setFileHistory] = useState([])
+
+  const fetchUserDocs = async() =>{
+    const user = JSON.parse(localStorage.getItem("user"))
+    const authToken = localStorage.getItem("authToken");
+    const formData = new FormData();
+    formData.append('id',user.id)
+    const response = await axios.post(apiUrl+"users/history/",formData,{
+      headers:{
+        Authorization:`Token ${authToken}`
+      }
+    })
+    setFileHistory(response.data)
+
+  }
+  useEffect(()=>{
+    fetchUserDocs();
+  },[])
 
   return (
     <div className="history-card">

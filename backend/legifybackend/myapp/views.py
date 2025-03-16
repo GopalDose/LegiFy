@@ -159,6 +159,7 @@ def file_upload(request):
             "message": "File uploaded and text extracted successfully!",
             "file_url": f"{settings.MEDIA_URL}uploads/{unique_file_name}",
             # "legal_res": legal_res,
+            "extracted_text":extracted_text,
             "file_id": user_file.id  # Return the file ID for future reference
         }
         return JsonResponse(response_data, status=201)
@@ -169,6 +170,7 @@ def file_upload(request):
 @permission_classes([IsAuthenticated])  # Ensure user is authenticated
 def file_history(request):
     """Fetch the file history for the logged-in user."""
+    print(request)
     user_files = UserFile.objects.filter(user=request.user).order_by('-uploaded_at')
     file_history = [
         {
@@ -194,8 +196,8 @@ def cleanup_files(request):
 
     return JsonResponse({"message": "Files cleaned up successfully!"}, status=200)
 
-API_KEY = os.getenv("API_KEY")
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+# API_KEY = os.getenv("API_KEY")
+# GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
 
 @api_view(["POST"])
 def chat(request):

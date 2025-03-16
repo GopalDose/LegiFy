@@ -64,6 +64,8 @@ const UploadDocument = () => {
         }
       });
 
+      console.log(response.data)
+
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
