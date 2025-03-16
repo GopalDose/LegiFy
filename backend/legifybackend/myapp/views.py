@@ -13,6 +13,7 @@ import requests
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from .utilities.text_extractor import extract_text
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 from datetime import  datetime
 from .models import UserFile
 from rest_framework.authtoken.models import Token
@@ -30,6 +31,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Create your views here.
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username" , "email"]
 
 
 
@@ -103,7 +109,8 @@ def user_login(request):
     if user is not None:
         login(request, user)
         token, _ = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key})
+        user_data = UserSerializer(user).data
+        return Response({"token": token.key ,"user":user_data})
     else:
         return Response({"error": "Invalid credentials"}, status=400)
 
@@ -121,14 +128,12 @@ def user_logout(request):
 @permission_classes([IsAuthenticated])  # Ensure user is authenticated
 @parser_classes([MultiPartParser])  # Allow file uploads
 def file_upload(request):
+    print(request.FILES)
     if 'file' not in request.FILES:
         return JsonResponse({"error": "No file uploaded"}, status=400)
 
     uploaded_file = request.FILES['file']
-    level = request.data.get('level');
-    print(type(level))
-    simpificationLevel = int(level)
-    print(type(simpificationLevel))
+ 
 
 
     # Generate a unique file name: userid_timestamp_filename
@@ -148,12 +153,12 @@ def file_upload(request):
 
     try:
         extracted_text = extract_text(file_path)
-        legal_res = summarize_text(extracted_text,simpificationLevel)
+        # legal_res = summarize_text(extracted_text,simpificationLevel)
 
         response_data = {
             "message": "File uploaded and text extracted successfully!",
             "file_url": f"{settings.MEDIA_URL}uploads/{unique_file_name}",
-            "legal_res": legal_res,
+            # "legal_res": legal_res,
             "file_id": user_file.id  # Return the file ID for future reference
         }
         return JsonResponse(response_data, status=201)
