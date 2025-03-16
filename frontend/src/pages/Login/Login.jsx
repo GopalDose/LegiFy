@@ -34,24 +34,41 @@ const Login = () => {
       });
       return;
     }
-    
+  
     setIsLoading(true);
-    const formData = new FormData();
-    formData.append('username',username);
-    formData.append('password',password);
-    const response = await axios.post(apiUrl+"users/login/",formData);
-    localStorage.setItem('authToken',response.data.token);
-    localStorage.setItem('user',JSON.stringify(response.data.user))
-
-    setTimeout(() => {
+  
+    try {
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("password", password);
+      
+      const response = await axios.post(apiUrl + "users/login/", formData);
+      
+      if (!response.data.token) {
+        throw new Error(response.data.error || "Invalid credentials");
+      }
+  
+      localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+  
+      setTimeout(() => {
+        setIsLoading(false);
+        toast({
+          title: "Success",
+          description: "You have successfully logged in.",
+        });
+        navigate("/dashboard");
+      }, 1500);
+    } catch (error) {
       setIsLoading(false);
       toast({
-        title: "Success",
-        description: "You have successfully logged in.",
+        title: "Login Failed",
+        description: error.response?.data?.error || error.message,
+        variant: "destructive",
       });
-      navigate('/dashboard');
-    }, 1500);
+    }
   };
+  
 
   return (
     <div className="login-page">
