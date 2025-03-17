@@ -50,7 +50,7 @@ const Sidebar = () => {
     }
 
     try {
-      await axios.delete(`${apiUrl}users/cleanup/`, {
+      const resp = await axios.delete(`${apiUrl}users/cleanup/`, {
         headers: { Authorization: `Token ${authToken}` },
       });
 
@@ -58,8 +58,9 @@ const Sidebar = () => {
         headers: { Authorization: `Token ${authToken}` },
       });
 
-      localStorage.removeItem("authToken");
       navigate("/");
+      setTimeout(()=>{localStorage.removeItem("authToken");},2000)
+      
     } catch (error) {
       console.error("Error during logout:", error.response?.data || error.message);
     }
