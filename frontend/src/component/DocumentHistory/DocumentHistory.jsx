@@ -13,7 +13,7 @@ const DocumentHistory = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const authToken = localStorage.getItem("authToken");
 
-      if (!user || !authToken) {
+      if (!authToken) {
         console.error("User or authToken is missing");
         return;
       }
