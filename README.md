@@ -1,4 +1,4 @@
-# Project Name: AI-Powered Legal Document Summarization
+# LegiFy: AI-Powered Legal Document Summarization
 
 ## Overview
 This project leverages advanced AI models to **summarize, simplify, and analyze legal documents** efficiently. It integrates **Named Entity Recognition (NER)**, **extractive summarization**, and **abstractive summarization** to ensure high-quality legal text processing.
@@ -54,6 +54,3 @@ python summarize.py --input legal_document.pdf --output summary.txt
 - **Support for summarizing legal contracts & compliance documents.**
 - **Interactive dashboard for legal analysis & visualization.**
 
----
-
-This README provides an overview of the core functionalities and future plans. Let me know if you want any refinements! 🚀
