@@ -16,7 +16,7 @@ This project leverages advanced AI models to **summarize, simplify, and analyze 
 - Enables quick understanding of **critical legal arguments and rulings**.
 
 ### 4️⃣ **Custom Dataset & Fine-Tuning**
-- Utilizes **legal domain-specific datasets** with structured annotations.
+- Utilizes **Yashaswat/Indian-Legal-Text-ABS** with structured annotations.
 - Covers sections such as:
   - **Legal Sections:** (e.g., Article 21, IPC Section 420)
   - **Acts & Statutes:** (e.g., Environmental Protection Act, 1986)
